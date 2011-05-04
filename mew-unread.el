@@ -32,12 +32,6 @@
 
 ;; variables
 
-(defvar *mew-unread-mode-hook* nil
-  "*List of functions to call when entering mew-unread mode.")
-
-(defvar *mew-unread-mode-map* nil
-  "Keymap for mew-unread major mode.")
-
 (defcustom mew-unread-folder-list nil
   "*List of mew folders to be listed by mew-unread-check."
   :type 'list
@@ -46,9 +40,8 @@
 
 ;; mew unread major mode
 
-(defun mew-unread-mode ()
+(define-derived-mode mew-unread-mode fundamental-mode
   "Major mode for mew folder list with the numbers of unread & marked messages."
-  (interactive)
   (kill-all-local-variables)
 
   (set (make-local-variable '*mew-unread-position*) 0)
@@ -59,24 +52,19 @@
                                                    (:inc . "red")
                                                    (:dec . "blue")))
 
+  (make-sparse-keymap)
+  (define-key mew-unread-mode-map "p" 'mew-unread-move-up)
+  (define-key mew-unread-mode-map "n" 'mew-unread-move-down)
+  (define-key mew-unread-mode-map "q" 'mew-unread-quit)
+  (define-key mew-unread-mode-map "i" 'mew-unread-check-folder-and-retrieve)
+  (define-key mew-unread-mode-map "g" 'mew-unread-goto-folder)
+  (define-key mew-unread-mode-map "w" 'mew-unread-summary-write)
+  (define-key mew-unread-mode-map " " 'mew-unread-visit-folder)
+  (define-key mew-unread-mode-map "\r" 'mew-unread-visit-folder)
 
-  (if *mew-unread-mode-map*
-      nil
-    (setq *mew-unread-mode-map* (make-sparse-keymap))
-    (define-key *mew-unread-mode-map* "p" 'mew-unread-move-up)
-    (define-key *mew-unread-mode-map* "n" 'mew-unread-move-down)
-    (define-key *mew-unread-mode-map* "q" 'mew-unread-quit)
-    (define-key *mew-unread-mode-map* "i" 'mew-unread-check-folder-and-retrieve)
-    (define-key *mew-unread-mode-map* "g" 'mew-unread-goto-folder)
-    (define-key *mew-unread-mode-map* "w" 'mew-unread-summary-write)
-    (define-key *mew-unread-mode-map* " " 'mew-unread-visit-folder)
-    (define-key *mew-unread-mode-map* "\r" 'mew-unread-visit-folder))
-  (setq major-mode 'mew-unread-mode)
-  (setq mode-name "Mew-Unread")
-  (use-local-map *mew-unread-mode-map*)
+  (setq mode-name "Mew Unread")
   (hl-line-mode)
-  (font-lock-mode t)
-  (run-hooks '*mew-unread-mode-hook*))
+  (font-lock-mode t))
 
 (defun mew-unread-move-up ()
   (interactive)
@@ -109,7 +97,7 @@
 
 (defun mew-unread-quit ()
   (interactive)
-  (kill-buffer nil))
+  (kill-buffer))
 
 (defun mew-unread-visit-folder (&optional go-to-unread)
   (interactive)
