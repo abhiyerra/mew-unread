@@ -72,7 +72,7 @@
   (define-key mew-unread-mode-map " " 'mew-unread-visit-folder)
   (define-key mew-unread-mode-map "\r" 'mew-unread-visit-folder))
 
-(mew-unread-check)
+;(mew-unread-check)
 
 (defun mew-unread-move-up ()
   (interactive)
