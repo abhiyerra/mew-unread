@@ -38,8 +38,10 @@
 (defvar *mew-unread-mode-map* nil
   "Keymap for mew-unread major mode.")
 
-(defvar *mew-unread-check-list* nil
-  "*List of mew folders to be listed by mew-unread-check.")
+(defcustom mew-unread-folder-list nil
+  "*List of mew folders to be listed by mew-unread-check."
+  :type 'list
+  :group 'mew-unread)
 
 
 ;; mew unread major mode
@@ -56,6 +58,7 @@
   (set (make-local-variable '*mew-unread-color*) '((:unread . "green")
                                                    (:inc . "red")
                                                    (:dec . "blue")))
+
 
   (if *mew-unread-mode-map*
       nil
@@ -84,7 +87,7 @@
 
 (defun mew-unread-move-down ()
   (interactive)
-  (when (< (line-number-at-pos) (+ (length *mew-unread-check-list*) 2))
+  (when (< (line-number-at-pos) (+ (length mew-unread-folder-list) 2))
     (forward-line 1))
   (when (< (line-number-at-pos) 3)
     (goto-char (point-min))
@@ -152,7 +155,7 @@
   (setq buffer-read-only nil)
   (kill-region (point-min) (point-max))
   (insert " total  unread(diff)  marked(diff)  :folder\n")
-  (dotimes (i (+ (* 6 5) (* 2 3) 2 (apply #'max (mapcar #'length *mew-unread-check-list*))))
+  (dotimes (i (+ (* 6 5) (* 2 3) 2 (apply #'max (mapcar #'length mew-unread-folder-list))))
     (insert "-"))
   (insert "\n")
   (mapc #'(lambda (folder)
@@ -178,7 +181,7 @@
                                          (t nil))
                                    (format "%-6s" (format "(%+d)" marknum-diff)))
                 (insert (format "  :%s\n" folder)))))
-        *mew-unread-check-list*)
+        mew-unread-folder-list)
   (goto-char *mew-unread-position*)
   (when (< (line-number-at-pos) 3)
     (goto-char (point-min))
@@ -208,14 +211,14 @@
             (when (or (and cfolder (string-equal folder cfolder))
                       (null (gethash folder *mew-unread-counts*)))
               (mew-unread-check-folder folder clear-diff)))
-        *mew-unread-check-list*)
+        mew-unread-folder-list)
   (mew-unread-display))
 
 (defun mew-unread-check ()
   (interactive)
   (let ((cbuf-name (buffer-name)))
     (mew-unread-check-all)
-    (if (not (find cbuf-name *mew-unread-check-list* :test 'equal))
+    (if (not (find cbuf-name mew-unread-folder-list :test 'equal))
         (mew-unread-display)
       (mew-summary-switch-to-folder cbuf-name)
       (save-excursion
@@ -226,7 +229,7 @@
 (defun mew-unread-check-folder-and-retrieve (&optional no-flush)
   (interactive "P")
   (let ((cbuf-name (buffer-name)))
-    (if (find cbuf-name *mew-unread-check-list* :test 'equal)
+    (if (find cbuf-name mew-unread-folder-list :test 'equal)
         (mew-unread-check-folder cbuf-name t)
       (set-buffer "*Mew unread*")
       (setq *mew-unread-position* (point))
@@ -280,7 +283,7 @@
                          (mew-summary-switch-to-folder folder)
                          (save-excursion
                            (mew-summary-ls t nil t)))
-                     *mew-unread-check-list*)
+                     mew-unread-folder-list)
                (mew-summary-switch-to-folder cbuf-name))))
 
 (add-hook 'mew-scan-sentinel-hook
@@ -288,7 +291,7 @@
              (let ((cbuf-name (buffer-name)))
                (cond ((equal cbuf-name "+inbox")
                       (mew-unread-refile))
-                     ((find cbuf-name *mew-unread-check-list* :test 'equal)
+                     ((find cbuf-name mew-unread-folder-list :test 'equal)
                       (mew-unread-check-all cbuf-name))))))
 
 (add-hook 'mew-summary-mode-hook
