@@ -38,6 +38,15 @@
   :group 'mew-unread)
 
 
+(defvar mew-unread-position 0)
+(defvar mew-unread-retrieve-program 'mew-summary-retrieve)
+(defvar mew-unread-counts (make-hash-table :test 'equal))
+(defvar mew-unread-diff (make-hash-table :test 'equal))
+(defvar mew-unread-color '((:unread . "green")
+                           (:inc . "red")
+                           (:dec . "blue")))
+
+
 ;; mew unread major mode
 
 (define-derived-mode mew-unread-mode fundamental-mode
@@ -49,14 +58,6 @@
   (make-local-variable 'mew-unread-counts)
   (make-local-variable 'mew-unread-diff)
   (make-local-variable 'mew-unread-color)
-
-  (setq mew-unread-position  0)
-  (setq mew-unread-retrieve-program 'mew-summary-retrieve)
-  (setq mew-unread-counts (make-hash-table :test 'equal))
-  (setq mew-unread-diff (make-hash-table :test 'equal))
-  (setq mew-unread-color '((:unread . "green")
-                           (:inc . "red")
-                           (:dec . "blue")))
 
   (setq buffer-read-only nil)
   (setq mode-name "Mew Unread")
@@ -71,8 +72,6 @@
   (define-key mew-unread-mode-map "w" 'mew-unread-summary-write)
   (define-key mew-unread-mode-map " " 'mew-unread-visit-folder)
   (define-key mew-unread-mode-map "\r" 'mew-unread-visit-folder))
-
-;(mew-unread-check)
 
 (defun mew-unread-move-up ()
   (interactive)
@@ -212,6 +211,7 @@
 
 (defun mew-unread-check ()
   (interactive)
+
   (let ((cbuf-name (buffer-name)))
     (mew-unread-check-all)
     (if (not (find cbuf-name mew-unread-folder-list :test 'equal))
@@ -221,7 +221,6 @@
         (mew-summary-ls t nil t))
       ;; after mew-summary-ls, mew-unread-check-folder will be called.
       )))
-
 
 (defun mew-unread-check-folder-and-retrieve (&optional no-flush)
   (interactive "P")
