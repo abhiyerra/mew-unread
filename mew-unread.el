@@ -41,13 +41,6 @@
 (defvar *mew-unread-check-list* nil
   "*List of mew folders to be listed by mew-unread-check.")
 
-(defvar *mew-unread-position* 0)
-(defvar *mew-unread-retrieve-program* 'mew-summary-retrieve)
-(defvar *mew-unread-counts* (make-hash-table :test 'equal))
-(defvar *mew-unread-diff* (make-hash-table :test 'equal))
-(defvar *mew-unread-color* '((:unread . "green")
-                             (:inc . "red")
-                             (:dec . "blue")))
 
 ;; mew unread major mode
 
@@ -55,6 +48,15 @@
   "Major mode for mew folder list with the numbers of unread & marked messages."
   (interactive)
   (kill-all-local-variables)
+
+  (set (make-local-variable '*mew-unread-position*) 0)
+  (set (make-local-variable '*mew-unread-retrieve-program*) 'mew-summary-retrieve)
+  (set (make-local-variable '*mew-unread-counts*) (make-hash-table :test 'equal))
+  (set (make-local-variable '*mew-unread-diff*) (make-hash-table :test 'equal))
+  (set (make-local-variable '*mew-unread-color*) '((:unread . "green")
+                                                   (:inc . "red")
+                                                   (:dec . "blue")))
+
   (if *mew-unread-mode-map*
       nil
     (setq *mew-unread-mode-map* (make-sparse-keymap))
